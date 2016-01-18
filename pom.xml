@@ -220,6 +220,11 @@
             <version>1.0.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.7</version>
+        </dependency>
 		<dependency>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>animal-sniffer-annotations</artifactId>
@@ -320,7 +325,8 @@
                                 import is only used if the framework decides to
                                 wire the bundle to another API provider. 
                             -->
-                            org.apache.felix.scr;provide:=true
+                            org.apache.felix.scr;provide:=true,
+                            org.slf4j
                         </Import-Package>
                         <DynamicImport-Package>
                             <!--

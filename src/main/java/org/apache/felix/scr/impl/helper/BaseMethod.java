@@ -39,6 +39,8 @@ import org.osgi.service.log.LogService;
 abstract class BaseMethod
 {
 
+    public static org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(BaseMethod.class);
+
     // class references to simplify parameter checking
     protected static final Class COMPONENT_CONTEXT_CLASS = ComponentContext.class;
     protected static final Class BUNDLE_CONTEXT_CLASS = BundleContext.class;
@@ -228,7 +230,9 @@ abstract class BaseMethod
             if ( componentInstance != null )
             {
                 final Object[] params = getParameters(m_method, rawParameter);
+                LOG.info("GG: SCR invoking {}: {}...", new Object[] { m_method, Arrays.asList(params) });
                 Object result = m_method.invoke(componentInstance, params);
+                LOG.info("GG: SCR invoked {}: {}...", new Object[] { m_method, Arrays.asList(params) });
                 logger.log( LogService.LOG_DEBUG, "invoked {0}: {1}: parameters {2}", new Object[]
                     { getMethodNamePrefix(), getMethodName(), Arrays.asList( params ) }, null );
                 return new MethodResult((m_method.getReturnType() != Void.TYPE), (Map) result);
