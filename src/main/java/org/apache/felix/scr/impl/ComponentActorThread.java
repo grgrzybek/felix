@@ -22,7 +22,8 @@ package org.apache.felix.scr.impl;
 import java.util.LinkedList;
 
 import org.osgi.service.log.LogService;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The <code>ComponentActorThread</code> is the thread used to act upon registered
@@ -30,6 +31,8 @@ import org.osgi.service.log.LogService;
  */
 class ComponentActorThread implements Runnable
 {
+
+    public static Logger LOG = LoggerFactory.getLogger(ComponentActorThread.class);
 
     // sentinel task to terminate this thread
     private static final Runnable TERMINATION_TASK = new Runnable()
@@ -96,6 +99,7 @@ class ComponentActorThread implements Runnable
 
                 // otherwise execute the task, log any issues
                 Activator.log( LogService.LOG_DEBUG, null, "Running task: " + task, null );
+                LOG.info("GG: CAT.run(" + task + ")");
                 task.run();
             }
             catch ( Throwable t )
@@ -142,6 +146,7 @@ class ComponentActorThread implements Runnable
         synchronized ( tasks )
         {
             // append to the task queue
+            LOG.info("GG: CAT.schedule(" + task + ")");
             tasks.add( task );
 
             Activator.log( LogService.LOG_DEBUG, null, "Adding task [{0}] as #{1} in the queue" 
