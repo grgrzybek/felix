@@ -288,7 +288,9 @@ public class ConfigurationManager implements BundleActivator, BundleListener
 
         // start processing the event queues only after registering the service
         // see FELIX-2813 for details
+        LOG.info("GG: CM: updateThread.start(): " + System.identityHashCode(updateThread));
         this.updateThread.start();
+        LOG.info("GG: CM: eventThread.start(): " + System.identityHashCode(eventThread));
         this.eventThread.start();
     }
 
@@ -307,10 +309,12 @@ public class ConfigurationManager implements BundleActivator, BundleListener
         // see FELIX-2813 for details
         if ( updateThread != null )
         {
+            LOG.info("GG: CM: updateThread.terminate(): " + System.identityHashCode(updateThread));
             updateThread.terminate();
         }
         if ( eventThread != null )
         {
+            LOG.info("GG: CM: eventThread.terminate(): " + System.identityHashCode(eventThread));
             eventThread.terminate();
         }
 
@@ -711,19 +715,24 @@ public class ConfigurationManager implements BundleActivator, BundleListener
     {
         // remove the configuration from the cache
         removeConfiguration( config );
+        LOG.info("GG: CM.deleted(): " + config.getPidString() + "/" + config.getFactoryPidString() + " firing CM_DELETED");
         fireConfigurationEvent( ConfigurationEvent.CM_DELETED, config.getPidString(), config.getFactoryPidString() );
+        LOG.info("GG: CM.deleted(): " + config.getPidString() + "/" + config.getFactoryPidString() + " scheduling DeleteConfiguration to updateThread");
         updateThread.schedule( new DeleteConfiguration( config ) );
         log( LogService.LOG_DEBUG, "DeleteConfiguration({0}) scheduled", new Object[]
             { config.getPid() } );
     }
 
+    public static org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ConfigurationManager.class);
 
     void updated( ConfigurationImpl config, boolean fireEvent )
     {
         if ( fireEvent )
         {
+            LOG.info("GG: CM.updated(): " + config.getPidString() + "/" + config.getFactoryPidString() + " firing CM_UPDATED");
             fireConfigurationEvent( ConfigurationEvent.CM_UPDATED, config.getPidString(), config.getFactoryPidString() );
         }
+        LOG.info("GG: CM.updated(): " + config.getPidString() + "/" + config.getFactoryPidString() + " scheduling UpdateConfiguration to updateThread");
         updateThread.schedule( new UpdateConfiguration( config ) );
         log( LogService.LOG_DEBUG, "UpdateConfiguration({0}) scheduled", new Object[]
             { config.getPid() } );
@@ -732,9 +741,11 @@ public class ConfigurationManager implements BundleActivator, BundleListener
 
     void locationChanged( ConfigurationImpl config, String oldLocation )
     {
+        LOG.info("GG: CM.locationChanged(): " + config.getPidString() + "/" + config.getFactoryPidString() + ", old = " + oldLocation + " firing CM_LOCATION_CHANGED");
         fireConfigurationEvent( ConfigurationEvent.CM_LOCATION_CHANGED, config.getPidString(), config.getFactoryPidString() );
         if ( oldLocation != null && !config.isNew() )
         {
+            LOG.info("GG: CM.locationChanged(): " + config.getPidString() + "/" + config.getFactoryPidString() + " scheduling LocationChanged to updateThread");
             updateThread.schedule( new LocationChanged( config, oldLocation ) );
             log( LogService.LOG_DEBUG, "LocationChanged({0}, {1}=>{2}) scheduled", new Object[]
                 { config.getPid(), oldLocation, config.getBundleLocation() } );
@@ -759,6 +770,7 @@ public class ConfigurationManager implements BundleActivator, BundleListener
         // send synchronous events
         if ( syncSender.hasConfigurationEventListeners() )
         {
+            LOG.info("GG: CM.fireConfigurationEvent(" + type + "): " + pid + "/" + factoryPid + ": syncSender.run()");
             syncSender.run();
         }
         else
@@ -770,6 +782,7 @@ public class ConfigurationManager implements BundleActivator, BundleListener
         // schedule asynchronous events
         if ( asyncSender.hasConfigurationEventListeners() )
         {
+            LOG.info("GG: CM.fireConfigurationEvent(" + type + "): " + pid + "/" + factoryPid + " scheduling FireConfigurationEvent to eventThread");
             eventThread.schedule( asyncSender );
         }
         else
@@ -925,6 +938,7 @@ public class ConfigurationManager implements BundleActivator, BundleListener
         {
             r = new ManagedServiceUpdate( pid, sr, configs );
         }
+        LOG.info("GG: CM.configure(): " + Arrays.asList(pid) + " scheduling " + r + " to updateThread");
         updateThread.schedule( r );
         log( LogService.LOG_DEBUG, "[{0}] scheduled", new Object[]
             { r } );
@@ -2033,6 +2047,7 @@ public class ConfigurationManager implements BundleActivator, BundleListener
 
                 try
                 {
+                    LOG.info("GG CM.sendEvent[" + serviceIndex + "] + " + listeners[serviceIndex] + ".configurationEvent(" + getConfigurationEvent() + ")");
                     listeners[serviceIndex].configurationEvent( getConfigurationEvent() );
                 }
                 catch ( Throwable t )

@@ -22,7 +22,8 @@ package org.apache.felix.cm.impl;
 import java.util.LinkedList;
 
 import org.osgi.service.log.LogService;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The <code>UpdateThread</code> is the thread used to update managed services
@@ -100,6 +101,7 @@ public class UpdateThread implements Runnable
                 configurationManager.log( LogService.LOG_DEBUG, "Running task {0}", new Object[]
                     { task } );
 
+                LOG.info("GG: CM.UpdateThread: running task: \"" + task + "\"");
                 task.run();
             }
             catch ( Throwable t )
@@ -113,6 +115,8 @@ public class UpdateThread implements Runnable
             }
         }
     }
+
+    public static Logger LOG = LoggerFactory.getLogger(UpdateThread.class);
 
     /**
      * Starts processing the queued tasks. This method does nothing if the
